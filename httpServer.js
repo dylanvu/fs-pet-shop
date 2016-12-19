@@ -119,6 +119,74 @@ const server = http.createServer((req, res) => {
       });
     });
   }
+  else if (req.method === 'POST' && petRegExp.test(req.url)) { // UPDATE
+    let bodyJSON = '';
+
+    req.on('data', (chunk) => {
+      bodyJSON += chunk.toString();
+    });
+
+    req.on('end', () => {
+      fs.readFile(petsPath, 'utf8', (readErr, data) => {
+        if (readErr) {
+          console.error(readErr.stack);
+
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'text/plain');
+          res.end('Internal Server Error');
+
+          return;
+        }
+
+        const pets = JSON.parse(data);
+        const matches = req.url.match(petRegExp);
+        const index = Number.parseInt(matches[1]);
+
+        if (Number.isNaN(index) || index < 0 || index >= pets.length) {
+          res.statusCode = 404;
+          res.setHeader('Content-Type', 'text/plain');
+          res.end('Not Found');
+
+          return;
+        }
+
+        const body = JSON.parse(bodyJSON);
+        const age = Number.parseInt(body.age);
+        const kind = body.kind;
+        const name = body.name;
+
+        if (Number.isNaN(age) || !kind || !name) {
+          res.statusCode = 400;
+          res.setHeader('Content-Type', 'text/plain');
+          res.end('Bad Request');
+
+          return;
+        }
+
+        pets[index].age = age;
+        pets[index].kind = kind;
+        pets[index].name = name;
+
+        const petJSON = JSON.stringify(pets[index]);
+        const petsJSON = JSON.stringify(pets);
+
+        fs.writeFile(petsPath, petsJSON, (writeErr) => {
+          if (writeErr) {
+            console.error(writeErr.stack);
+
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'text/plain');
+            res.end('Internal Server Error');
+
+            return;
+          }
+
+          res.setHeader('Content-Type', 'application/json');
+          res.end(petJSON);
+        });
+      });
+    });
+  }
   else {
     res.statusCode = 404;
     res.setHeader('Content-Type', 'text/plain');
