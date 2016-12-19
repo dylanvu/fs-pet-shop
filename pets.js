@@ -34,7 +34,42 @@ if (cmd === 'read') {
     console.log(pets[index]);
   });
 }
+else if (cmd === 'create') {
+  fs.readFile(petsPath, 'utf8', (readErr, data) => {
+    if (readErr) {
+      throw readErr;
+    }
+
+    const age = Number.parseInt(process.argv[3]);
+    const kind = process.argv[4];
+    const name = process.argv[5];
+
+    if (Number.isNaN(age) || !kind || !name) {
+      console.error(`Usage: ${node} ${file} ${cmd} AGE KIND NAME`);
+      process.exit(1);
+    }
+
+    const pets = JSON.parse(data);
+    const pet = {
+      age,
+      kind,
+      name
+    };
+
+    pets.push(pet);
+
+    const petsJSON = JSON.stringify(pets);
+
+    fs.writeFile(petsPath, petsJSON, (writeErr) => {
+      if (writeErr) {
+        throw writeErr;
+      }
+
+      console.log(pet);
+    });
+  });
+}
 else {
-  console.error(`Usage: ${node} ${file} read`);
+  console.error(`Usage: ${node} ${file} [read | create | update | destroy]`);
   process.exit(1);
 }
