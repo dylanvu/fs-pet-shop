@@ -119,7 +119,8 @@ const server = http.createServer((req, res) => {
       });
     });
   }
-  else if (req.method === 'POST' && petRegExp.test(req.url)) { // UPDATE
+  // UPDATE
+  else if (req.method === 'PUT' && petRegExp.test(req.url)) {
     let bodyJSON = '';
 
     req.on('data', (chunk) => {
@@ -184,6 +185,44 @@ const server = http.createServer((req, res) => {
           res.setHeader('Content-Type', 'application/json');
           res.end(petJSON);
         });
+      });
+    });
+  }
+  // DELETE
+  else if (req.method === 'DELETE' && petRegExp.test(req.url)) {
+    fs.readFile(petsPath, 'utf8', (err, data) => {
+      if (err) {
+        console.error(err.stack);
+
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Internal Server Error');
+
+        return;
+      }
+
+      const pets = JSON.parse(data);
+      const matches = req.url.match(petRegExp);
+      const index = Number.parseInt(matches[1]);
+
+      if (Number.isNaN(index) || index < 0 || index >= pets.length) {
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Not Found');
+
+        return;
+      }
+
+      const petJSON = JSON.stringify(pets.splice(index, 1)[0]);
+      const petsJSON = JSON.stringify(pets);
+
+      fs.writeFile(petsPath, petsJSON, (writeErr) => {
+        if (writeErr) {
+          throw writeErr;
+        }
+
+        res.setHeader('Content-Type', 'application/json');
+        res.end(petJSON);
       });
     });
   }
