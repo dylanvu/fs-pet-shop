@@ -11,12 +11,18 @@ const node = path.basename(process.argv[0]);
 const file = path.basename(process.argv[1]);
 const cmd = process.argv[2];
 
-fs.readFile(petsPath, 'utf8', (err, data) => {
-  if (err) {
-    throw err;
-  }
+if (cmd === 'read') {
+  fs.readFile(petsPath, 'utf8', (err, data) => {
+    if (err) {
+      throw err;
+    }
 
-  const pets = JSON.parse(data);
+    const pets = JSON.parse(data);
 
-  console.log(pets);
-});
+    console.log(pets);
+  });
+}
+else {
+  console.error(`Usage: ${node} ${file} read`);
+  process.exit(1);
+}
