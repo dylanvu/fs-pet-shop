@@ -4,7 +4,7 @@
 
 'use strict';
 
-// uncomment to test original
+// UNCOMMENT TO TEST ORIGINAL ASSIGNMENT
 // const fs = require('fs');
 // const path = require('path');
 // const petsPath = path.join(__dirname, 'pets.json');
@@ -15,17 +15,15 @@ const app = express();
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 
-// comment out to test original
-const pets = require('./routes/pets');
-
 app.disable('x-powered-by');
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
-// comment out to test original
+// COMMENT OUT TO TEST ORGINAL ASSIGNMENT
+const pets = require('./routes/pets.js');
 app.use(pets);
 
-// Original w/o routes. uncomment to test
+// UNCOMMENT TO TEST ORIGINAL ASSIGNMENT
 // app.get('/pets', (req, res, next) => {
 //   fs.readFile(petsPath, 'utf8', (err, data) => {
 //     if (err) {
