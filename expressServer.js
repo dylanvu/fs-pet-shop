@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 'use strict';
 
 const fs = require('fs');
@@ -31,6 +29,28 @@ app.get('/pets', (req, res) => {
     const pets = JSON.parse(data);
 
     res.send(pets);
+  });
+});
+
+app.get('/pets/:id', (req, res) => {
+  fs.readFile(petsPath, 'utf8', (err, data) => {
+    if (err) {
+      console.error(err.stack);
+      res.sendStatus(500);
+
+      return;
+    }
+
+    const pets = JSON.parse(data);
+    const id = Number.parseInt(req.params.id);
+
+    if (Number.isNaN(id) || id < 0 || id >= pets.length) {
+      res.sendStatus(404);
+
+      return;
+    }
+
+    res.send(pets[id]);
   });
 });
 
