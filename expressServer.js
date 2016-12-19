@@ -151,7 +151,7 @@ app.delete('/pets/:id', (req, res, next) => {
       return;
     }
 
-    const pet = pets.splice(index, 1)[0];
+    const pet = pets.splice(id, 1)[0];
     const petsJSON = JSON.stringify(pets);
 
     fs.writeFile(petsPath, petsJSON, (writeErr) => {
