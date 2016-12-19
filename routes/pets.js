@@ -102,15 +102,17 @@ router.patch('/pets/:id', (req, res, next) => {
     const kind = req.body.kind;
     const name = req.body.name;
 
-    if (Number.isNaN(age) || !kind || !name) {
+    if (Number.isNaN(age) && !kind && !name) {
       res.sendStatus(400);
 
       return;
     }
 
-    pets[id].age = age;
-    pets[id].kind = kind;
-    pets[id].name = name;
+    if (!Number.isNaN(age) || kind || name) {
+      pets[id].age = age || pets[id].age;
+      pets[id].kind = kind || pets[id].kind;
+      pets[id].name = name || pets[id].name;
+    }
 
     const petsJSON = JSON.stringify(pets);
 
@@ -142,7 +144,6 @@ router.delete('/pets/:id', (req, res, next) => {
     }
 
     const pet = pets.splice(id, 1)[0];
-    console.log(pets);
     const petsJSON = JSON.stringify(pets);
 
     fs.writeFile(petsPath, petsJSON, (writeErr) => {
