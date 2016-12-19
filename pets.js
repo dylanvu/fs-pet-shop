@@ -69,6 +69,44 @@ else if (cmd === 'create') {
     });
   });
 }
+else if (cmd === 'update') {
+  fs.readFile(petsPath, 'utf8', (readErr, data) => {
+    if (readErr) {
+      throw readErr;
+    }
+
+    const pets = JSON.parse(data);
+    const index = Number.parseInt(process.argv[3]);
+
+    if (Number.isNaN(index) || index < 0 || index >= pets.length) {
+      console.error(`Usage: ${node} ${file} ${cmd} INDEX AGE KIND NAME`);
+      process.exit(1);
+    }
+
+    const age = Number.parseInt(process.argv[4]);
+    const kind = process.argv[5];
+    const name = process.argv[6];
+
+    if (Number.isNaN(age) || !kind || !name) {
+      console.error(`Usage: ${node} ${file} ${cmd} INDEX AGE KIND NAME`);
+      process.exit(1);
+    }
+
+    pets[index].age = age;
+    pets[index].kind = kind;
+    pets[index].name = name;
+
+    const petsJSON = JSON.stringify(pets);
+
+    fs.writeFile(petsPath, petsJSON, (writeErr) => {
+      if (writeErr) {
+        throw writeErr;
+      }
+
+      console.log(pets[index]);
+    });
+  });
+}
 else {
   console.error(`Usage: ${node} ${file} [read | create | update | destroy]`);
   process.exit(1);
