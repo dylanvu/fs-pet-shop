@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/* eslint-disable newline-before-return */
 
 'use strict';
 
@@ -19,12 +20,10 @@ const bodyParser = require('body-parser');
 
 app.use(bodyParser.json());
 
-app.get('/pets', (req, res) => {
+app.get('/pets', (req, res, next) => {
   fs.readFile(petsPath, 'utf8', (err, data) => {
     if (err) {
-      console.error(err.stack);
-      res.sendStatus(500);
-
+      next(err);
       return;
     }
 
@@ -34,12 +33,10 @@ app.get('/pets', (req, res) => {
   });
 });
 
-app.get('/pets/:id', (req, res) => {
+app.get('/pets/:id', (req, res, next) => {
   fs.readFile(petsPath, 'utf8', (err, data) => {
     if (err) {
-      console.error(err.stack);
-      res.sendStatus(500);
-
+      next(err);
       return;
     }
 
@@ -56,12 +53,10 @@ app.get('/pets/:id', (req, res) => {
   });
 });
 
-app.post('/pets', (req, res) => {
+app.post('/pets', (req, res, next) => {
   fs.readFile(petsPath, 'utf8', (readErr, data) => {
     if (readErr) {
-      console.error(readErr.stack);
-      res.sendStatus(500);
-
+      next(readErr);
       return;
     }
 
@@ -88,9 +83,80 @@ app.post('/pets', (req, res) => {
 
     fs.writeFile(petsPath, petsJSON, (writeErr) => {
       if (writeErr) {
-        console.error(writeErr.stack);
-        res.sendStatus(500);
+        next(writeErr);
+        return;
+      }
 
+      res.send(pet);
+    });
+  });
+});
+
+app.patch('/pets/:id', (req, res, next) => {
+  fs.readFile(petsPath, 'utf8', (readErr, data) => {
+    if (readErr) {
+      next(readErr);
+      return;
+    }
+
+    const pets = JSON.parse(data);
+    const id = Number.parseInt(req.params.id);
+
+    if (Number.isNaN(id) || id < 0 || id >= pets.length) {
+      res.sendStatus(404);
+
+      return;
+    }
+
+    const age = Number.parseInt(req.body.age);
+    const kind = req.body.kind;
+    const name = req.body.name;
+
+    if (Number.isNaN(age) || !kind || !name) {
+      res.sendStatus(400);
+
+      return;
+    }
+
+    pets[id].age = age;
+    pets[id].kind = kind;
+    pets[id].name = name;
+
+    const petsJSON = JSON.stringify(pets);
+
+    fs.writeFile(petsPath, petsJSON, (writeErr) => {
+      if (writeErr) {
+        next(writeErr);
+        return;
+      }
+
+      res.send(pets[id]);
+    });
+  });
+});
+
+app.delete('/pets/:id', (req, res, next) => {
+  fs.readFile(petsPath, 'utf8', (readErr, data) => {
+    if (readErr) {
+      next(readErr);
+      return;
+    }
+
+    const pets = JSON.parse(data);
+    const id = Number.parseInt(req.params.id);
+
+    if (Number.isNaN(id) || id < 0 || id >= pets.length) {
+      res.sendStatus(404);
+
+      return;
+    }
+
+    const pet = pets.splice(index, 1)[0];
+    const petsJSON = JSON.stringify(pets);
+
+    fs.writeFile(petsPath, petsJSON, (writeErr) => {
+      if (writeErr) {
+        next(writeErr);
         return;
       }
 
@@ -101,6 +167,11 @@ app.post('/pets', (req, res) => {
 
 app.use((req, res) => {
   res.sendStatus(404);
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.sendStatus(500);
 });
 
 const port = process.env.PORT || 8000;
