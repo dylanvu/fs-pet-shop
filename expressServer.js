@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 'use strict';
 
 const fs = require('fs');
@@ -51,6 +53,49 @@ app.get('/pets/:id', (req, res) => {
     }
 
     res.send(pets[id]);
+  });
+});
+
+app.post('/pets', (req, res) => {
+  fs.readFile(petsPath, 'utf8', (readErr, data) => {
+    if (readErr) {
+      console.error(readErr.stack);
+      res.sendStatus(500);
+
+      return;
+    }
+
+    const age = Number.parseInt(req.body.age);
+    const kind = req.body.kind;
+    const name = req.body.name;
+
+    if (Number.isNaN(age) || !kind || !name) {
+      res.sendStatus(400);
+
+      return;
+    }
+
+    const pet = {
+      age,
+      kind,
+      name
+    };
+    const pets = JSON.parse(data);
+
+    pets.push(pet);
+
+    const petsJSON = JSON.stringify(pets);
+
+    fs.writeFile(petsPath, petsJSON, (writeErr) => {
+      if (writeErr) {
+        console.error(writeErr.stack);
+        res.sendStatus(500);
+
+        return;
+      }
+
+      res.send(pet);
+    });
   });
 });
 
