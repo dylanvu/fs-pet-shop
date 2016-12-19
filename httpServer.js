@@ -190,9 +190,9 @@ const server = http.createServer((req, res) => {
   }
   // DELETE
   else if (req.method === 'DELETE' && petRegExp.test(req.url)) {
-    fs.readFile(petsPath, 'utf8', (err, data) => {
-      if (err) {
-        console.error(err.stack);
+    fs.readFile(petsPath, 'utf8', (readErr, data) => {
+      if (readErr) {
+        console.error(readErr.stack);
 
         res.statusCode = 500;
         res.setHeader('Content-Type', 'text/plain');
