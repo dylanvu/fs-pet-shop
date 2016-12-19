@@ -1,28 +1,29 @@
 /* eslint-disable no-console */
 /* eslint-disable newline-before-return */
+/* eslint-disable newline-after-var */
 
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const petsPath = path.join(__dirname, 'pets.json');
+// uncomment to test original
+// const fs = require('fs');
+// const path = require('path');
+// const petsPath = path.join(__dirname, 'pets.json');
 
 const express = require('express');
 const app = express();
 
-app.disable('x-powered-by');
-
 const morgan = require('morgan');
-
-app.use(morgan('dev'));
-
 const bodyParser = require('body-parser');
 
+// comment out to test original
+const pets = require('./routes/pets');
+
+app.disable('x-powered-by');
+app.use(morgan('dev'));
 app.use(bodyParser.json());
 
-const pets = require('./routes/pets'); // comment out to test original
-
-app.use(pets); // comment out to test original
+// comment out to test original
+app.use(pets);
 
 // Original w/o routes. uncomment to test
 // app.get('/pets', (req, res, next) => {
