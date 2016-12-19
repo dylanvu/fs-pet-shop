@@ -3,6 +3,7 @@
 // Import modules
 const fs = require('fs');
 const path = require('path');
+
 // pointer to pets data
 const petsPath = path.join(__dirname, 'pets.json');
 
@@ -18,8 +19,19 @@ if (cmd === 'read') {
     }
 
     const pets = JSON.parse(data);
+    const index = Number.parseInt(process.argv[3]);
 
-    console.log(pets);
+    if (Number.isNaN(index)) {
+      console.log(pets);
+      process.exit(0);
+    }
+
+    if (index < 0 || index >= pets.length) {
+      console.error(`Usage: ${node} ${file} ${cmd} INDEX`);
+      process.exit(1);
+    }
+
+    console.log(pets[index]);
   });
 }
 else {
