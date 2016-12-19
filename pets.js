@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 'use strict';
 
 // Import modules
@@ -104,6 +106,32 @@ else if (cmd === 'update') {
       }
 
       console.log(pets[index]);
+    });
+  });
+}
+else if (cmd === 'destroy') {
+  fs.readFile(petsPath, 'utf8', (readErr, data) => {
+    if (readErr) {
+      throw readErr;
+    }
+
+    const pets = JSON.parse(data);
+    const index = Number.parseInt(process.argv[3]);
+
+    if (Number.isNaN(index) || index < 0 || index >= pets.length) {
+      console.error(`Usage: ${node} ${file} ${cmd} INDEX`);
+      process.exit(1);
+    }
+
+    const pet = pets.splice(index, 1)[0];
+    const petsJSON = JSON.stringify(pets);
+
+    fs.writeFile(petsPath, petsJSON, (writeErr) => {
+      if (writeErr) {
+        throw writeErr;
+      }
+
+      console.log(pet);
     });
   });
 }
